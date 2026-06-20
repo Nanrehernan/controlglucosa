@@ -4,7 +4,7 @@
 
 
 /* ================= SET DEFAULT DATE/TIME ================= */
-function setDefaultDateTime() {
+/*function setDefaultDateTime() {
 
    const now = new Date();
 
@@ -13,6 +13,25 @@ function setDefaultDateTime() {
 
    if (dateInput) {
       dateInput.value = now.toISOString().split("T")[0];
+   }
+
+   if (timeInput) {
+      timeInput.value = now.toTimeString().slice(0, 5);
+   }
+}*/
+
+function setDefaultDateTime() {
+   const now = new Date();
+
+   const dateInput = document.getElementById("recordDate");
+   const timeInput = document.getElementById("recordTime");
+
+   if (dateInput) {
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+
+      dateInput.value = `${year}-${month}-${day}`;
    }
 
    if (timeInput) {
