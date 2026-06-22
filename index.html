@@ -4,180 +4,1917 @@
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>🩸 GlucoControl v4</title>
-
-   <!-- CSS -->
-   <link rel="stylesheet" href="css/styles.css">
-
-   <!-- LIBRERÍAS -->
-   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   <title>GlucoControl — Control de Glucosa</title>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+   <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+      :root {
+         --navy: #0F172A;
+         --navy2: #1E293B;
+         --navy3: #334155;
+         --teal: #0D9488;
+         --teal-light: #14B8A6;
+         --teal-dim: #0D948822;
+         --slate: #94A3B8;
+         --slate-light: #CBD5E1;
+         --white: #F8FAFC;
+         --card: #1E293B;
+         --red: #EF4444;
+         --red-dim: #EF444422;
+         --green: #22C55E;
+         --green-dim: #22C55E22;
+         --yellow: #F59E0B;
+         --yellow-dim: #F59E0B22;
+         --border: #334155;
+         --text: #E2E8F0;
+         --text-muted: #64748B;
+         --sidebar-w: 240px;
+      }
+
+      * {
+         margin: 0;
+         padding: 0;
+         box-sizing: border-box;
+      }
+
+      body {
+         font-family: 'Inter', sans-serif;
+         background: var(--navy);
+         color: var(--text);
+         min-height: 100vh;
+         display: flex;
+         overflow-x: hidden;
+      }
+
+      /* ── AUTH ── */
+      #auth-screen {
+         position: fixed;
+         inset: 0;
+         background: var(--navy);
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         z-index: 1000;
+      }
+
+      .auth-box {
+         background: var(--card);
+         border: 1px solid var(--border);
+         border-radius: 20px;
+         padding: 48px 40px;
+         width: 400px;
+         max-width: 95vw;
+      }
+
+      .auth-logo {
+         display: flex;
+         align-items: center;
+         gap: 10px;
+         margin-bottom: 32px;
+      }
+
+      .auth-logo svg {
+         width: 36px;
+         height: 36px;
+      }
+
+      .auth-logo span {
+         font-size: 22px;
+         font-weight: 800;
+         color: var(--white);
+      }
+
+      .auth-logo span em {
+         color: var(--teal);
+         font-style: normal;
+      }
+
+      .auth-tabs {
+         display: flex;
+         gap: 4px;
+         background: var(--navy);
+         border-radius: 10px;
+         padding: 4px;
+         margin-bottom: 28px;
+      }
+
+      .auth-tab {
+         flex: 1;
+         padding: 8px;
+         border: none;
+         background: transparent;
+         color: var(--slate);
+         cursor: pointer;
+         border-radius: 7px;
+         font-family: inherit;
+         font-size: 14px;
+         font-weight: 500;
+         transition: all .2s;
+      }
+
+      .auth-tab.active {
+         background: var(--teal);
+         color: white;
+      }
+
+      .auth-form {
+         display: flex;
+         flex-direction: column;
+         gap: 16px;
+      }
+
+      .auth-form label {
+         font-size: 12px;
+         color: var(--slate);
+         font-weight: 500;
+         text-transform: uppercase;
+         letter-spacing: .05em;
+      }
+
+      .auth-form input {
+         width: 100%;
+         padding: 12px 16px;
+         background: var(--navy);
+         border: 1px solid var(--border);
+         border-radius: 10px;
+         color: var(--text);
+         font-family: inherit;
+         font-size: 15px;
+         transition: border-color .2s;
+         margin-top: 6px;
+      }
+
+      .auth-form input:focus {
+         outline: none;
+         border-color: var(--teal);
+      }
+
+      .auth-btn {
+         padding: 13px;
+         background: var(--teal);
+         border: none;
+         border-radius: 10px;
+         color: white;
+         font-family: inherit;
+         font-size: 15px;
+         font-weight: 600;
+         cursor: pointer;
+         margin-top: 8px;
+         transition: background .2s;
+      }
+
+      .auth-btn:hover {
+         background: var(--teal-light);
+      }
+
+      .auth-error {
+         font-size: 13px;
+         color: var(--red);
+         background: var(--red-dim);
+         border-radius: 8px;
+         padding: 10px 14px;
+         display: none;
+      }
+
+      .auth-error.show {
+         display: block;
+      }
+
+      /* ── SIDEBAR ── */
+      #sidebar {
+         width: var(--sidebar-w);
+         background: var(--navy2);
+         border-right: 1px solid var(--border);
+         display: flex;
+         flex-direction: column;
+         position: fixed;
+         top: 0;
+         left: 0;
+         bottom: 0;
+         z-index: 100;
+         transition: transform .3s;
+      }
+
+      .sidebar-logo {
+         padding: 28px 24px 20px;
+         border-bottom: 1px solid var(--border);
+         display: flex;
+         align-items: center;
+         gap: 10px;
+      }
+
+      .sidebar-logo svg {
+         width: 28px;
+         height: 28px;
+      }
+
+      .sidebar-logo span {
+         font-size: 17px;
+         font-weight: 800;
+         color: var(--white);
+      }
+
+      .sidebar-logo span em {
+         color: var(--teal);
+         font-style: normal;
+      }
+
+      .sidebar-nav {
+         padding: 16px 12px;
+         flex: 1;
+      }
+
+      .nav-label {
+         font-size: 10px;
+         color: var(--text-muted);
+         text-transform: uppercase;
+         letter-spacing: .08em;
+         font-weight: 600;
+         padding: 0 12px 8px;
+         margin-top: 16px;
+      }
+
+      .nav-item {
+         display: flex;
+         align-items: center;
+         gap: 12px;
+         padding: 11px 12px;
+         border-radius: 10px;
+         cursor: pointer;
+         color: var(--slate);
+         font-size: 14px;
+         font-weight: 500;
+         transition: all .15s;
+         border: none;
+         background: transparent;
+         width: 100%;
+         text-align: left;
+         margin-bottom: 2px;
+      }
+
+      .nav-item:hover {
+         background: var(--navy3);
+         color: var(--text);
+      }
+
+      .nav-item.active {
+         background: var(--teal-dim);
+         color: var(--teal-light);
+      }
+
+      .nav-item svg {
+         width: 18px;
+         height: 18px;
+         flex-shrink: 0;
+      }
+
+      .sidebar-user {
+         padding: 16px;
+         border-top: 1px solid var(--border);
+         display: flex;
+         align-items: center;
+         gap: 10px;
+      }
+
+      .user-avatar {
+         width: 36px;
+         height: 36px;
+         border-radius: 50%;
+         background: var(--teal);
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         font-weight: 700;
+         font-size: 14px;
+         color: white;
+         flex-shrink: 0;
+      }
+
+      .user-info {
+         flex: 1;
+         min-width: 0;
+      }
+
+      .user-name {
+         font-size: 13px;
+         font-weight: 600;
+         color: var(--text);
+         white-space: nowrap;
+         overflow: hidden;
+         text-overflow: ellipsis;
+      }
+
+      .user-role {
+         font-size: 11px;
+         color: var(--text-muted);
+      }
+
+      .logout-btn {
+         background: none;
+         border: none;
+         cursor: pointer;
+         color: var(--text-muted);
+         padding: 4px;
+         border-radius: 6px;
+         transition: color .2s;
+      }
+
+      .logout-btn:hover {
+         color: var(--red);
+      }
+
+      /* ── MAIN ── */
+      #main {
+         margin-left: var(--sidebar-w);
+         flex: 1;
+         min-height: 100vh;
+         padding: 32px;
+      }
+
+      .page {
+         display: none;
+         animation: fadeIn .2s ease;
+      }
+
+      .page.active {
+         display: block;
+      }
+
+      @keyframes fadeIn {
+         from {
+            opacity: 0;
+            transform: translateY(6px);
+         }
+
+         to {
+            opacity: 1;
+            transform: translateY(0);
+         }
+      }
+
+      .page-header {
+         margin-bottom: 28px;
+      }
+
+      .page-header h1 {
+         font-size: 26px;
+         font-weight: 800;
+         color: var(--white);
+      }
+
+      .page-header p {
+         font-size: 14px;
+         color: var(--text-muted);
+         margin-top: 4px;
+      }
+
+      /* ── CARDS ── */
+      .card {
+         background: var(--card);
+         border: 1px solid var(--border);
+         border-radius: 16px;
+         padding: 24px;
+      }
+
+      .card-title {
+         font-size: 13px;
+         font-weight: 600;
+         color: var(--text-muted);
+         text-transform: uppercase;
+         letter-spacing: .06em;
+         margin-bottom: 16px;
+      }
+
+      /* ── DASHBOARD ── */
+      .stats-grid {
+         display: grid;
+         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+         gap: 16px;
+         margin-bottom: 24px;
+      }
+
+      .stat-card {
+         background: var(--card);
+         border: 1px solid var(--border);
+         border-radius: 16px;
+         padding: 20px;
+         position: relative;
+         overflow: hidden;
+      }
+
+      .stat-card::before {
+         content: '';
+         position: absolute;
+         top: 0;
+         left: 0;
+         right: 0;
+         height: 3px;
+      }
+
+      .stat-card.green::before {
+         background: var(--green);
+      }
+
+      .stat-card.red::before {
+         background: var(--red);
+      }
+
+      .stat-card.yellow::before {
+         background: var(--yellow);
+      }
+
+      .stat-card.teal::before {
+         background: var(--teal);
+      }
+
+      .stat-icon {
+         width: 40px;
+         height: 40px;
+         border-radius: 10px;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         margin-bottom: 12px;
+      }
+
+      .stat-icon.green {
+         background: var(--green-dim);
+      }
+
+      .stat-icon.red {
+         background: var(--red-dim);
+      }
+
+      .stat-icon.yellow {
+         background: var(--yellow-dim);
+      }
+
+      .stat-icon.teal {
+         background: var(--teal-dim);
+      }
+
+      .stat-icon svg {
+         width: 20px;
+         height: 20px;
+      }
+
+      .stat-icon.green svg {
+         color: var(--green);
+      }
+
+      .stat-icon.red svg {
+         color: var(--red);
+      }
+
+      .stat-icon.yellow svg {
+         color: var(--yellow);
+      }
+
+      .stat-icon.teal svg {
+         color: var(--teal);
+      }
+
+      .stat-label {
+         font-size: 12px;
+         color: var(--text-muted);
+         font-weight: 500;
+      }
+
+      .stat-value {
+         font-size: 32px;
+         font-weight: 800;
+         color: var(--white);
+         line-height: 1;
+         margin: 4px 0 2px;
+      }
+
+      .stat-sub {
+         font-size: 12px;
+         color: var(--text-muted);
+      }
+
+      .chart-card {
+         background: var(--card);
+         border: 1px solid var(--border);
+         border-radius: 16px;
+         padding: 24px;
+      }
+
+      .chart-header {
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
+         flex-wrap: wrap;
+         gap: 12px;
+         margin-bottom: 20px;
+      }
+
+      .range-controls {
+         display: flex;
+         gap: 8px;
+         align-items: center;
+         flex-wrap: wrap;
+      }
+
+      .range-btn {
+         padding: 6px 14px;
+         border-radius: 8px;
+         border: 1px solid var(--border);
+         background: transparent;
+         color: var(--slate);
+         font-family: inherit;
+         font-size: 13px;
+         cursor: pointer;
+         transition: all .15s;
+         font-weight: 500;
+      }
+
+      .range-btn.active,
+      .range-btn:hover {
+         background: var(--teal);
+         border-color: var(--teal);
+         color: white;
+      }
+
+      .range-date {
+         padding: 6px 12px;
+         background: var(--navy);
+         border: 1px solid var(--border);
+         border-radius: 8px;
+         color: var(--text);
+         font-family: inherit;
+         font-size: 13px;
+         cursor: pointer;
+      }
+
+      .range-date:focus {
+         outline: none;
+         border-color: var(--teal);
+      }
+
+      canvas {
+         max-height: 280px;
+      }
+
+      /* ── ADD GLUCOSE ── */
+      .form-grid {
+         display: grid;
+         grid-template-columns: 1fr 1fr;
+         gap: 20px;
+      }
+
+      .form-group {
+         display: flex;
+         flex-direction: column;
+         gap: 8px;
+      }
+
+      .form-group.full {
+         grid-column: 1 / -1;
+      }
+
+      .form-group label {
+         font-size: 12px;
+         color: var(--text-muted);
+         font-weight: 600;
+         text-transform: uppercase;
+         letter-spacing: .05em;
+      }
+
+      .form-input {
+         padding: 12px 16px;
+         background: var(--navy);
+         border: 1px solid var(--border);
+         border-radius: 10px;
+         color: var(--text);
+         font-family: inherit;
+         font-size: 15px;
+         transition: border-color .2s;
+      }
+
+      .form-input:focus {
+         outline: none;
+         border-color: var(--teal);
+      }
+
+      .meal-grid {
+         display: grid;
+         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+         gap: 10px;
+      }
+
+      .meal-btn {
+         padding: 12px 14px;
+         border-radius: 10px;
+         border: 1.5px solid var(--border);
+         background: transparent;
+         color: var(--slate);
+         font-family: inherit;
+         font-size: 13px;
+         cursor: pointer;
+         transition: all .15s;
+         font-weight: 500;
+         display: flex;
+         align-items: center;
+         gap: 8px;
+      }
+
+      .meal-btn.selected {
+         border-color: var(--teal);
+         background: var(--teal-dim);
+         color: var(--teal-light);
+      }
+
+      .meal-btn svg {
+         width: 16px;
+         height: 16px;
+      }
+
+      .post-options {
+         display: flex;
+         gap: 10px;
+      }
+
+      .post-btn {
+         flex: 1;
+         padding: 11px;
+         border-radius: 10px;
+         border: 1.5px solid var(--border);
+         background: transparent;
+         color: var(--slate);
+         font-family: inherit;
+         font-size: 13px;
+         cursor: pointer;
+         transition: all .15s;
+         font-weight: 500;
+      }
+
+      .post-btn.selected {
+         border-color: var(--teal);
+         background: var(--teal-dim);
+         color: var(--teal-light);
+      }
+
+      .submit-btn {
+         padding: 14px 32px;
+         background: var(--teal);
+         border: none;
+         border-radius: 12px;
+         color: white;
+         font-family: inherit;
+         font-size: 15px;
+         font-weight: 600;
+         cursor: pointer;
+         transition: background .2s;
+      }
+
+      .submit-btn:hover {
+         background: var(--teal-light);
+      }
+
+      .glucose-badge {
+         display: inline-flex;
+         align-items: center;
+         gap: 6px;
+         padding: 4px 10px;
+         border-radius: 6px;
+         font-size: 12px;
+         font-weight: 600;
+      }
+
+      .badge-normal {
+         background: var(--green-dim);
+         color: var(--green);
+      }
+
+      .badge-high {
+         background: var(--red-dim);
+         color: var(--red);
+      }
+
+      .badge-low {
+         background: var(--yellow-dim);
+         color: var(--yellow);
+      }
+
+      /* ── TABLE ── */
+      .table-wrapper {
+         overflow-x: auto;
+      }
+
+      table {
+         width: 100%;
+         border-collapse: collapse;
+      }
+
+      th {
+         text-align: left;
+         padding: 10px 14px;
+         font-size: 11px;
+         color: var(--text-muted);
+         text-transform: uppercase;
+         letter-spacing: .06em;
+         font-weight: 600;
+         border-bottom: 1px solid var(--border);
+      }
+
+      td {
+         padding: 13px 14px;
+         font-size: 14px;
+         color: var(--text);
+         border-bottom: 1px solid #1E293B;
+      }
+
+      tr:last-child td {
+         border-bottom: none;
+      }
+
+      tr:hover td {
+         background: #ffffff05;
+      }
+
+      .del-btn {
+         background: none;
+         border: none;
+         cursor: pointer;
+         color: var(--text-muted);
+         padding: 4px;
+         border-radius: 6px;
+         transition: color .2s;
+      }
+
+      .del-btn:hover {
+         color: var(--red);
+      }
+
+      /* ── IMPORT / EXPORT ── */
+      .io-grid {
+         display: grid;
+         grid-template-columns: 1fr 1fr;
+         gap: 20px;
+      }
+
+      .io-card {
+         background: var(--card);
+         border: 1px solid var(--border);
+         border-radius: 16px;
+         padding: 28px;
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         gap: 16px;
+         text-align: center;
+      }
+
+      .io-icon {
+         width: 60px;
+         height: 60px;
+         border-radius: 16px;
+         background: var(--teal-dim);
+         display: flex;
+         align-items: center;
+         justify-content: center;
+      }
+
+      .io-icon svg {
+         width: 28px;
+         height: 28px;
+         color: var(--teal);
+      }
+
+      .io-card h3 {
+         font-size: 17px;
+         font-weight: 700;
+         color: var(--white);
+      }
+
+      .io-card p {
+         font-size: 13px;
+         color: var(--text-muted);
+         line-height: 1.5;
+      }
+
+      .io-btn {
+         padding: 11px 28px;
+         border-radius: 10px;
+         border: 1.5px solid var(--teal);
+         background: transparent;
+         color: var(--teal);
+         font-family: inherit;
+         font-size: 14px;
+         font-weight: 600;
+         cursor: pointer;
+         transition: all .2s;
+      }
+
+      .io-btn:hover {
+         background: var(--teal);
+         color: white;
+      }
+
+      .io-btn.solid {
+         background: var(--teal);
+         color: white;
+      }
+
+      .io-btn.solid:hover {
+         background: var(--teal-light);
+      }
+
+      #import-file {
+         display: none;
+      }
+
+      /* ── PDF EXPORT ── */
+      .pdf-form {
+         display: grid;
+         grid-template-columns: 1fr 1fr auto;
+         gap: 16px;
+         align-items: end;
+      }
+
+      /* ── TOAST ── */
+      #toast {
+         position: fixed;
+         bottom: 28px;
+         left: 50%;
+         transform: translateX(-50%);
+         background: var(--card);
+         border: 1px solid var(--border);
+         border-radius: 12px;
+         padding: 12px 22px;
+         font-size: 14px;
+         font-weight: 500;
+         color: var(--text);
+         z-index: 9999;
+         opacity: 0;
+         transition: opacity .3s;
+         pointer-events: none;
+         white-space: nowrap;
+      }
+
+      #toast.show {
+         opacity: 1;
+      }
+
+      #toast.success {
+         border-color: var(--green);
+         color: var(--green);
+      }
+
+      #toast.error {
+         border-color: var(--red);
+         color: var(--red);
+      }
+
+      /* ── EMPTY STATE ── */
+      .empty {
+         text-align: center;
+         padding: 48px 24px;
+         color: var(--text-muted);
+      }
+
+      .empty svg {
+         width: 48px;
+         height: 48px;
+         margin-bottom: 12px;
+         opacity: .4;
+      }
+
+      .empty p {
+         font-size: 14px;
+      }
+
+      @media (max-width: 768px) {
+         :root {
+            --sidebar-w: 0px;
+         }
+
+         #sidebar {
+            transform: translateX(-240px);
+            width: 240px;
+         }
+
+         #sidebar.open {
+            transform: translateX(0);
+         }
+
+         #main {
+            margin-left: 0;
+            padding: 20px;
+         }
+
+         .form-grid,
+         .io-grid,
+         .pdf-form {
+            grid-template-columns: 1fr;
+         }
+
+         .stats-grid {
+            grid-template-columns: 1fr 1fr;
+         }
+
+         .menu-btn {
+            display: flex !important;
+         }
+      }
+
+      .menu-btn {
+         display: none;
+         position: fixed;
+         top: 16px;
+         left: 16px;
+         z-index: 200;
+         background: var(--card);
+         border: 1px solid var(--border);
+         border-radius: 10px;
+         padding: 9px;
+         cursor: pointer;
+         color: var(--text);
+      }
+   </style>
 </head>
 
 <body>
 
-   <!-- HEADER -->
-   <header class="header">
-      <h1>🩸 GlucoControl</h1>
-      <div id="userBadge" class="user-badge">Sin usuario</div>
-   </header>
-
-   <!-- ===================== AUTH ===================== -->
-   <section id="authSection" class="auth-section">
-
-      <!-- LOGIN -->
-      <div id="loginBox" class="card">
-
-         <h2>🔐 Iniciar sesión</h2>
-
-         <input id="loginUser" type="text" placeholder="Usuario">
-         <input id="loginPass" type="password" placeholder="Contraseña">
-
-         <button onclick="login()">Entrar</button>
-         <button onclick="toggleAuth()">Crear cuenta</button>
-
-      </div>
-
-      <!-- REGISTER -->
-      <div id="registerBox" class="card hidden">
-
-         <h2>🆕 Registro</h2>
-
-         <input id="regUser" type="text" placeholder="Usuario">
-         <input id="regPass" type="password" placeholder="Contraseña">
-
-         <button onclick="register()">Registrar</button>
-         <button onclick="toggleAuth()">Volver al login</button>
-
-      </div>
-
-   </section>
-
-   <!-- ===================== APP ===================== -->
-   <section id="appSection" class="app hidden">
-
-      <!-- SIDEBAR -->
-      <aside class="sidebar">
-
-         <button onclick="showSection('dashboard')">📊 Dashboard</button>
-         <button onclick="showSection('registerRecord')">➕ Registrar</button>
-         <button onclick="showSection('history')">📋 Historial</button>
-
-         <hr>
-
-         <button onclick="exportJSON()">💾 Exportar JSON</button>
-         <button onclick="importJSON()">📥 Importar JSON</button>
-         <button onclick="exportPDF()">📄 PDF Médico</button>
-
-         <hr>
-
-         <button onclick="logout()">🚪 Cerrar sesión</button>
-         <button onclick="deleteMyData()">🗑 Eliminar mis datos</button>
-         <button onclick="deleteAccount()">❌ Eliminar cuenta</button>
-
-      </aside>
-
-      <!-- MAIN -->
-      <main class="main">
-
-         <!-- ================= DASHBOARD ================= -->
-         <section id="dashboard" class="section">
-
-            <h2>📊 Dashboard</h2>
-
-            <!-- STATS -->
-            <div id="statsContainer" class="stats"></div>
-
-            <!-- FILTERS -->
-            <div class="chart-filters">
-
-               <button onclick="filterChart('day')">Día</button>
-               <button onclick="filterChart('week')">Semana</button>
-               <button onclick="filterChart('month')">Mes</button>
-               <button onclick="filterChart('year')">Año</button>
-               <button onclick="filterChart('all')">Todo</button>
-
+   <!-- AUTH -->
+   <div id="auth-screen">
+      <div class="auth-box">
+         <div class="auth-logo">
+            <svg viewBox="0 0 36 36" fill="none">
+               <rect width="36" height="36" rx="10" fill="#0D9488" />
+               <path d="M18 8v20M8 18h20" stroke="white" stroke-width="3" stroke-linecap="round" />
+               <circle cx="18" cy="18" r="5" fill="white" opacity=".3" />
+            </svg>
+            <span>Gluco<em>Control</em></span>
+         </div>
+         <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchTab('login')">Iniciar sesión</button>
+            <button class="auth-tab" onclick="switchTab('register')">Registrarse</button>
+         </div>
+         <div class="auth-form" id="auth-form">
+            <div id="name-field" style="display:none">
+               <label>Nombre completo</label>
+               <input type="text" id="auth-name" placeholder="Tu nombre">
             </div>
+            <div>
+               <label>Correo electrónico</label>
+               <input type="email" id="auth-email" placeholder="correo@ejemplo.com">
+            </div>
+            <div>
+               <label>Contraseña</label>
+               <input type="password" id="auth-password" placeholder="••••••••">
+            </div>
+            <div class="auth-error" id="auth-error"></div>
+            <button class="auth-btn" onclick="submitAuth()" id="auth-submit-btn">Iniciar sesión</button>
+         </div>
+      </div>
+   </div>
 
-            <!-- CHART -->
-            <canvas id="glucoseChart"></canvas>
+   <!-- MOBILE MENU -->
+   <button class="menu-btn" onclick="toggleSidebar()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+         stroke-linecap="round">
+         <path d="M3 12h18M3 6h18M3 18h18" />
+      </svg>
+   </button>
 
-         </section>
+   <!-- SIDEBAR -->
+   <nav id="sidebar">
+      <div class="sidebar-logo">
+         <svg viewBox="0 0 28 28" fill="none">
+            <rect width="28" height="28" rx="8" fill="#0D9488" />
+            <path d="M14 6v16M6 14h16" stroke="white" stroke-width="2.5" stroke-linecap="round" />
+         </svg>
+         <span>Gluco<em>Control</em></span>
+      </div>
+      <div class="sidebar-nav">
+         <div class="nav-label">Principal</div>
+         <button class="nav-item active" onclick="goTo('dashboard')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round">
+               <rect x="3" y="3" width="7" height="7" />
+               <rect x="14" y="3" width="7" height="7" />
+               <rect x="14" y="14" width="7" height="7" />
+               <rect x="3" y="14" width="7" height="7" />
+            </svg>
+            Dashboard
+         </button>
+         <button class="nav-item" onclick="goTo('add')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+               <circle cx="12" cy="12" r="10" />
+               <path d="M12 8v8M8 12h8" />
+            </svg>
+            Agregar glucosa
+         </button>
+         <button class="nav-item" onclick="goTo('history')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round">
+               <path d="M12 20h9" />
+               <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+            </svg>
+            Historial
+         </button>
+         <div class="nav-label">Datos</div>
+         <button class="nav-item" onclick="goTo('io')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round">
+               <polyline points="8 17 12 21 16 17" />
+               <line x1="12" y1="12" x2="12" y2="21" />
+               <path d="M20.88 18.09A5 5 0 0018 9h-1.26A8 8 0 103 16.29" />
+            </svg>
+            Importar / Exportar
+         </button>
+         <button class="nav-item" onclick="goTo('pdf')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round">
+               <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+               <polyline points="14 2 14 8 20 8" />
+               <line x1="16" y1="13" x2="8" y2="13" />
+               <line x1="16" y1="17" x2="8" y2="17" />
+               <polyline points="10 9 9 9 8 9" />
+            </svg>
+            Informe PDF
+         </button>
+      </div>
+      <div class="sidebar-user">
+         <div class="user-avatar" id="user-avatar">?</div>
+         <div class="user-info">
+            <div class="user-name" id="user-name-display">—</div>
+            <div class="user-role">Paciente</div>
+         </div>
+         <button class="logout-btn" onclick="logout()" title="Cerrar sesión">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+               <polyline points="16 17 21 12 16 7" />
+               <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+         </button>
+      </div>
+   </nav>
 
-         <!-- ================= REGISTER ================= -->
-         <section id="registerRecord" class="section hidden">
+   <!-- MAIN -->
+   <main id="main">
 
-            <h2>➕ Nuevo registro</h2>
-
-            <div class="form">
-
-               <input id="glucose" type="number" placeholder="Glucosa (mg/dL)">
-               <input id="insulin" type="number" placeholder="Insulina (UI)">
-
-               <label>📅 Fecha</label>
-               <input id="recordDate" type="date">
-
-               <label>🕒 Hora</label>
-               <input id="recordTime" type="time">
-
-               <label>🍽️ Comida</label>
-               <select id="meal">
-
-                  <option value="">Seleccionar</option>
-
-                  <option>Desayuno</option>
-                  <option>Post Desayuno (+2h)</option>
-
-                  <option>Media Mañana</option>
-                  <option>Post Media Mañana (+2h)</option>
-
-                  <option>Almuerzo</option>
-                  <option>Post Almuerzo (+2h)</option>
-
-                  <option>Merienda</option>
-                  <option>Post Merienda (+2h)</option>
-
-                  <option>Cena</option>
-                  <option>Post Cena (+2h)</option>
-
-               </select>
-
-               <label class="checkbox">
-                  <input type="checkbox" id="correction" onchange="toggleFood()">
-                  Solo corrección (sin comida)
-               </label>
-
-               <div id="foodBlock">
-                  <input id="food" type="text" placeholder="¿Qué comió? (opcional)">
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+         <div class="page-header">
+            <h1>Dashboard</h1>
+            <p>Resumen de tus niveles de glucosa</p>
+         </div>
+         <div class="stats-grid">
+            <div class="stat-card green">
+               <div class="stat-icon green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                     <path d="M12 2C6 2 2 7 2 12s4 10 10 10 10-4.5 10-10S18 2 12 2z" />
+                     <path d="M9 12l2 2 4-4" />
+                  </svg>
                </div>
-
-               <button onclick="saveRecord()">💾 Guardar registro</button>
-
+               <div class="stat-label">Glucosa mínima</div>
+               <div class="stat-value" id="stat-min">—</div>
+               <div class="stat-sub">mg/dL (última semana)</div>
             </div>
+            <div class="stat-card red">
+               <div class="stat-icon red">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                     <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                     <line x1="12" y1="9" x2="12" y2="13" />
+                     <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+               </div>
+               <div class="stat-label">Glucosa máxima</div>
+               <div class="stat-value" id="stat-max">—</div>
+               <div class="stat-sub">mg/dL (última semana)</div>
+            </div>
+            <div class="stat-card teal">
+               <div class="stat-icon teal">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                     <path d="M12 20V10" />
+                     <path d="M18 20V4" />
+                     <path d="M6 20v-4" />
+                  </svg>
+               </div>
+               <div class="stat-label">Promedio</div>
+               <div class="stat-value" id="stat-avg">—</div>
+               <div class="stat-sub">mg/dL (última semana)</div>
+            </div>
+            <div class="stat-card yellow">
+               <div class="stat-icon yellow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                     <circle cx="12" cy="12" r="10" />
+                     <polyline points="12 6 12 12 16 14" />
+                  </svg>
+               </div>
+               <div class="stat-label">Registros totales</div>
+               <div class="stat-value" id="stat-count">0</div>
+               <div class="stat-sub">mediciones guardadas</div>
+            </div>
+         </div>
+         <div class="chart-card">
+            <div class="chart-header">
+               <div>
+                  <div class="card-title" style="margin-bottom:4px">Historial de glucosa</div>
+               </div>
+               <div class="range-controls">
+                  <button class="range-btn active" onclick="setRange('7d',this)">7 días</button>
+                  <button class="range-btn" onclick="setRange('14d',this)">14 días</button>
+                  <button class="range-btn" onclick="setRange('30d',this)">30 días</button>
+                  <span style="color:var(--text-muted);font-size:12px">o:</span>
+                  <input type="date" class="range-date" id="range-from" onchange="setCustomRange()">
+                  <input type="date" class="range-date" id="range-to" onchange="setCustomRange()">
+               </div>
+            </div>
+            <canvas id="glucose-chart"></canvas>
+         </div>
+      </div>
 
-         </section>
+      <!-- ADD GLUCOSE -->
+      <div class="page" id="page-add">
+         <div class="page-header">
+            <h1>Agregar glucosa</h1>
+            <p>Registra tu medición y detalles de la comida</p>
+         </div>
+         <div class="card">
+            <div class="form-grid">
+               <div class="form-group">
+                  <label>Nivel de glucosa (mg/dL) *</label>
+                  <input type="number" class="form-input" id="add-glucose" placeholder="Ej. 120" min="20" max="600">
+               </div>
+               <div class="form-group">
+                  <label>Insulina aplicada (U)</label>
+                  <input type="number" class="form-input" id="add-insulin" placeholder="Ej. 4" min="0" max="100"
+                     step="0.5">
+               </div>
+               <div class="form-group">
+                  <label>Fecha</label>
+                  <input type="date" class="form-input" id="add-date">
+               </div>
+               <div class="form-group">
+                  <label>Hora</label>
+                  <input type="time" class="form-input" id="add-time">
+               </div>
+               <div class="form-group full">
+                  <label>Comida</label>
+                  <div class="meal-grid" id="meal-grid">
+                     <button class="meal-btn" onclick="toggleMeal(this,'ayunas')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                           stroke-linecap="round">
+                           <path
+                              d="M12 3v1m0 16v1M4.22 4.22l.71.71M18.36 18.36l.71.71M3 12H4m16 0h1M4.22 19.78l.71-.71M18.36 5.64l.71-.71" />
+                        </svg>
+                        En ayunas
+                     </button>
+                     <button class="meal-btn" onclick="toggleMeal(this,'desayuno')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                           stroke-linecap="round">
+                           <path d="M18 8h1a4 4 0 010 8h-1" />
+                           <path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z" />
+                           <line x1="6" y1="1" x2="6" y2="4" />
+                           <line x1="10" y1="1" x2="10" y2="4" />
+                           <line x1="14" y1="1" x2="14" y2="4" />
+                        </svg>
+                        Desayuno
+                     </button>
+                     <button class="meal-btn" onclick="toggleMeal(this,'almuerzo')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                           stroke-linecap="round">
+                           <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2" />
+                           <path d="M7 2v20" />
+                           <path d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7" />
+                        </svg>
+                        Almuerzo
+                     </button>
+                     <button class="meal-btn" onclick="toggleMeal(this,'merienda')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                           stroke-linecap="round">
+                           <path
+                              d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+                        </svg>
+                        Merienda
+                     </button>
+                     <button class="meal-btn" onclick="toggleMeal(this,'cena')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                           stroke-linecap="round">
+                           <path d="M21 7.5V6a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h3.5" />
+                           <path d="M16 2v4" />
+                           <path d="M8 2v4" />
+                           <path d="M3 10h18" />
+                           <circle cx="18" cy="18" r="4" />
+                           <path d="M18 14v4l2 2" />
+                        </svg>
+                        Cena
+                     </button>
+                  </div>
+               </div>
+               <div class="form-group full">
+                  <label>Control post comida</label>
+                  <div class="post-options">
+                     <button class="post-btn" onclick="togglePost(this,'antes')">Antes de comer</button>
+                     <button class="post-btn" onclick="togglePost(this,'2h')">2h después</button>
+                     <button class="post-btn" onclick="togglePost(this,'1h')">1h después</button>
+                  </div>
+               </div>
+               <div class="form-group full">
+                  <label>Notas (opcional)</label>
+                  <input type="text" class="form-input" id="add-notes" placeholder="Observaciones adicionales…">
+               </div>
+               <div class="form-group full">
+                  <button class="submit-btn" onclick="addReading()">Guardar medición</button>
+               </div>
+            </div>
+         </div>
+      </div>
 
-         <!-- ================= HISTORY ================= -->
-         <section id="history" class="section hidden">
+      <!-- HISTORY -->
+      <div class="page" id="page-history">
+         <div class="page-header">
+            <h1>Historial</h1>
+            <p>Todas tus mediciones registradas</p>
+         </div>
+         <div class="card">
+            <div class="table-wrapper">
+               <table>
+                  <thead>
+                     <tr>
+                        <th>Fecha y hora</th>
+                        <th>Glucosa</th>
+                        <th>Insulina</th>
+                        <th>Comida</th>
+                        <th>Control</th>
+                        <th>Notas</th>
+                        <th></th>
+                     </tr>
+                  </thead>
+                  <tbody id="history-body"></tbody>
+               </table>
+               <div class="empty" id="history-empty">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                     <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
+                     <rect x="9" y="3" width="6" height="4" rx="1" />
+                     <line x1="9" y1="12" x2="15" y2="12" />
+                     <line x1="9" y1="16" x2="12" y2="16" />
+                  </svg>
+                  <p>No hay mediciones registradas aún.</p>
+               </div>
+            </div>
+         </div>
+      </div>
 
-            <h2>📋 Historial</h2>
+      <!-- IMPORT / EXPORT -->
+      <div class="page" id="page-io">
+         <div class="page-header">
+            <h1>Importar / Exportar</h1>
+            <p>Gestiona tus datos en formato JSON</p>
+         </div>
+         <div class="io-grid">
+            <div class="io-card">
+               <div class="io-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round">
+                     <polyline points="8 17 12 21 16 17" />
+                     <line x1="12" y1="12" x2="12" y2="21" />
+                     <path d="M20.88 18.09A5 5 0 0018 9h-1.26A8 8 0 103 16.29" />
+                  </svg>
+               </div>
+               <h3>Exportar datos</h3>
+               <p>Descarga todos tus registros de glucosa en un archivo JSON para respaldo o transferencia.</p>
+               <button class="io-btn solid" onclick="exportJSON()">Descargar JSON</button>
+            </div>
+            <div class="io-card">
+               <div class="io-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round">
+                     <polyline points="16 16 12 12 8 16" />
+                     <line x1="12" y1="12" x2="12" y2="21" />
+                     <path d="M20.88 18.09A5 5 0 0018 9h-1.26A8 8 0 103 16.29" />
+                  </svg>
+               </div>
+               <h3>Importar datos</h3>
+               <p>Carga un archivo JSON exportado anteriormente para restaurar o migrar tus registros.</p>
+               <input type="file" id="import-file" accept=".json" onchange="importJSON(event)">
+               <button class="io-btn" onclick="document.getElementById('import-file').click()">Seleccionar
+                  archivo</button>
+            </div>
+         </div>
+      </div>
 
-            <div id="historyContainer" class="history"></div>
+      <!-- PDF REPORT -->
+      <div class="page" id="page-pdf">
+         <div class="page-header">
+            <h1>Informe PDF</h1>
+            <p>Genera un reporte médico por rango de fechas</p>
+         </div>
+         <div class="card">
+            <div class="card-title">Seleccionar período</div>
+            <div class="pdf-form">
+               <div class="form-group">
+                  <label>Fecha desde</label>
+                  <input type="date" class="form-input" id="pdf-from">
+               </div>
+               <div class="form-group">
+                  <label>Fecha hasta</label>
+                  <input type="date" class="form-input" id="pdf-to">
+               </div>
+               <div class="form-group">
+                  <label style="opacity:0">Gen</label>
+                  <button class="submit-btn" onclick="generatePDF()">Generar PDF</button>
+               </div>
+            </div>
+            <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+               <div class="card-title">Vista previa del informe</div>
+               <div class="table-wrapper">
+                  <table id="pdf-preview-table">
+                     <thead>
+                        <tr>
+                           <th>Fecha</th>
+                           <th>Hora</th>
+                           <th>Glucosa (mg/dL)</th>
+                           <th>Insulina (U)</th>
+                           <th>Comida</th>
+                           <th>Control</th>
+                        </tr>
+                     </thead>
+                     <tbody id="pdf-preview-body"></tbody>
+                  </table>
+                  <div class="empty" id="pdf-empty">
+                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                     </svg>
+                     <p>Selecciona un rango de fechas para previsualizar.</p>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
 
-         </section>
+   </main>
 
-      </main>
+   <div id="toast"></div>
 
-   </section>
+   <script>
+      // ── STATE ──
+      let currentUser = null;
+      let readings = [];
+      let glucoseChart = null;
+      let currentRange = '7d';
+      let selectedMeals = [];
+      let selectedPost = null;
 
-   <!-- JS MODULES -->
-   <script src="js/storage.js"></script>
-   <script src="js/auth.js"></script>
-   <script src="js/records.js"></script>
-   <script src="js/charts.js"></script>
-   <script src="js/reports.js"></script>
-   <script src="js/app.js"></script>
+      // ── STORAGE HELPERS ──
+      function saveReadings() {
+         localStorage.setItem('gc_readings_' + currentUser.email, JSON.stringify(readings));
+      }
+      function loadReadings() {
+         const d = localStorage.getItem('gc_readings_' + currentUser.email);
+         readings = d ? JSON.parse(d) : [];
+      }
+      function getUsers() {
+         const d = localStorage.getItem('gc_users');
+         return d ? JSON.parse(d) : {};
+      }
+      function saveUsers(u) {
+         localStorage.setItem('gc_users', JSON.stringify(u));
+      }
 
+      // ── AUTH ──
+      let authMode = 'login';
+
+      function switchTab(mode) {
+         authMode = mode;
+         document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (i === 0 && mode === 'login') || (i === 1 && mode === 'register')));
+         document.getElementById('name-field').style.display = mode === 'register' ? 'block' : 'none';
+         document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta';
+         document.getElementById('auth-error').classList.remove('show');
+      }
+
+      function submitAuth() {
+         const email = document.getElementById('auth-email').value.trim();
+         const password = document.getElementById('auth-password').value;
+         const name = document.getElementById('auth-name').value.trim();
+         const errEl = document.getElementById('auth-error');
+         errEl.classList.remove('show');
+
+         if (!email || !password) { errEl.textContent = 'Completa todos los campos.'; errEl.classList.add('show'); return; }
+
+         const users = getUsers();
+
+         if (authMode === 'register') {
+            if (!name) { errEl.textContent = 'Ingresa tu nombre.'; errEl.classList.add('show'); return; }
+            if (users[email]) { errEl.textContent = 'El correo ya está registrado.'; errEl.classList.add('show'); return; }
+            if (password.length < 6) { errEl.textContent = 'La contraseña debe tener al menos 6 caracteres.'; errEl.classList.add('show'); return; }
+            users[email] = { email, name, password };
+            saveUsers(users);
+            currentUser = users[email];
+         } else {
+            if (!users[email] || users[email].password !== password) {
+               errEl.textContent = 'Correo o contraseña incorrectos.'; errEl.classList.add('show'); return;
+            }
+            currentUser = users[email];
+         }
+
+         localStorage.setItem('gc_session', JSON.stringify(currentUser));
+         enterApp();
+      }
+
+      function enterApp() {
+         loadReadings();
+         document.getElementById('auth-screen').style.display = 'none';
+         document.getElementById('user-name-display').textContent = currentUser.name;
+         document.getElementById('user-avatar').textContent = currentUser.name.charAt(0).toUpperCase();
+         setDefaultDates();
+         renderHistory();
+         updateStats();
+         initChart();
+         updateChartRange();
+      }
+
+      function logout() {
+         localStorage.removeItem('gc_session');
+         currentUser = null;
+         readings = [];
+         document.getElementById('auth-screen').style.display = 'flex';
+         document.getElementById('auth-email').value = '';
+         document.getElementById('auth-password').value = '';
+         if (glucoseChart) { glucoseChart.destroy(); glucoseChart = null; }
+      }
+
+      // ── NAVIGATION ──
+      function goTo(page) {
+         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+         document.getElementById('page-' + page).classList.add('active');
+         document.querySelectorAll('.nav-item')[['dashboard', 'add', 'history', 'io', 'pdf'].indexOf(page)].classList.add('active');
+         if (page === 'dashboard') { updateStats(); updateChartRange(); }
+         if (page === 'history') renderHistory();
+         if (page === 'pdf') updatePDFPreview();
+         if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+      }
+
+      function toggleSidebar() {
+         document.getElementById('sidebar').classList.toggle('open');
+      }
+
+      // ── DEFAULTS ──
+      function setDefaultDates() {
+         const now = new Date();
+         const dateStr = now.toISOString().split('T')[0];
+         const timeStr = now.toTimeString().slice(0, 5);
+         document.getElementById('add-date').value = dateStr;
+         document.getElementById('add-time').value = timeStr;
+         const weekAgo = new Date(now - 7 * 864e5).toISOString().split('T')[0];
+         document.getElementById('range-from').value = weekAgo;
+         document.getElementById('range-to').value = dateStr;
+         const monthAgo = new Date(now - 30 * 864e5).toISOString().split('T')[0];
+         document.getElementById('pdf-from').value = monthAgo;
+         document.getElementById('pdf-to').value = dateStr;
+      }
+
+      // ── MEAL / POST CONTROLS ──
+      function toggleMeal(btn, meal) {
+         const idx = selectedMeals.indexOf(meal);
+         if (idx > -1) { selectedMeals.splice(idx, 1); btn.classList.remove('selected'); }
+         else { selectedMeals.push(meal); btn.classList.add('selected'); }
+      }
+
+      function togglePost(btn, val) {
+         document.querySelectorAll('.post-btn').forEach(b => b.classList.remove('selected'));
+         if (selectedPost === val) { selectedPost = null; }
+         else { selectedPost = val; btn.classList.add('selected'); }
+      }
+
+      // ── ADD READING ──
+      function addReading() {
+         const glucose = parseFloat(document.getElementById('add-glucose').value);
+         const insulin = parseFloat(document.getElementById('add-insulin').value) || 0;
+         const date = document.getElementById('add-date').value;
+         const time = document.getElementById('add-time').value;
+         const notes = document.getElementById('add-notes').value.trim();
+
+         if (!glucose || glucose < 20 || glucose > 600) {
+            showToast('Ingresa un valor de glucosa válido (20–600 mg/dL)', 'error'); return;
+         }
+         if (!date || !time) { showToast('Selecciona fecha y hora', 'error'); return; }
+
+         const reading = {
+            id: Date.now(),
+            glucose,
+            insulin,
+            date,
+            time,
+            meals: [...selectedMeals],
+            post: selectedPost,
+            notes,
+            ts: new Date(date + 'T' + time).getTime()
+         };
+
+         readings.push(reading);
+         readings.sort((a, b) => a.ts - b.ts);
+         saveReadings();
+
+         // reset form
+         document.getElementById('add-glucose').value = '';
+         document.getElementById('add-insulin').value = '';
+         document.getElementById('add-notes').value = '';
+         document.querySelectorAll('.meal-btn').forEach(b => b.classList.remove('selected'));
+         document.querySelectorAll('.post-btn').forEach(b => b.classList.remove('selected'));
+         selectedMeals = [];
+         selectedPost = null;
+         setDefaultDates();
+
+         showToast('Medición guardada correctamente ✓', 'success');
+         goTo('dashboard');
+      }
+
+      // ── STATS ──
+      function getWeekReadings() {
+         const cutoff = Date.now() - 7 * 864e5;
+         return readings.filter(r => r.ts >= cutoff);
+      }
+
+      function updateStats() {
+         const week = getWeekReadings();
+         document.getElementById('stat-count').textContent = readings.length;
+         if (!week.length) {
+            ['stat-min', 'stat-max', 'stat-avg'].forEach(id => document.getElementById(id).textContent = '—');
+            return;
+         }
+         const vals = week.map(r => r.glucose);
+         document.getElementById('stat-min').textContent = Math.min(...vals);
+         document.getElementById('stat-max').textContent = Math.max(...vals);
+         document.getElementById('stat-avg').textContent = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+      }
+
+      // ── CHART ──
+      function initChart() {
+         const ctx = document.getElementById('glucose-chart').getContext('2d');
+         glucoseChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+               labels: [], datasets: [{
+                  label: 'Glucosa (mg/dL)',
+                  data: [],
+                  borderColor: '#0D9488',
+                  backgroundColor: 'rgba(13,148,136,.1)',
+                  borderWidth: 2.5,
+                  pointBackgroundColor: '#0D9488',
+                  pointRadius: 4,
+                  pointHoverRadius: 6,
+                  fill: true,
+                  tension: 0.35
+               }, {
+                  label: 'Insulina (U)',
+                  data: [],
+                  borderColor: '#F59E0B',
+                  backgroundColor: 'rgba(245,158,11,.08)',
+                  borderWidth: 2,
+                  pointBackgroundColor: '#F59E0B',
+                  pointRadius: 3,
+                  fill: false,
+                  tension: 0.35,
+                  yAxisID: 'y2'
+               }]
+            },
+            options: {
+               responsive: true,
+               maintainAspectRatio: true,
+               interaction: { mode: 'index', intersect: false },
+               plugins: {
+                  legend: { labels: { color: '#94A3B8', font: { family: 'Inter', size: 12 }, boxWidth: 12 } },
+                  tooltip: {
+                     backgroundColor: '#1E293B', borderColor: '#334155', borderWidth: 1,
+                     titleColor: '#E2E8F0', bodyColor: '#94A3B8',
+                     callbacks: {
+                        afterLabel: ctx => {
+                           const r = readings.filter(r => getLabel(r) === ctx.label);
+                           if (r.length && r[0].meals.length) return 'Comida: ' + r[0].meals.join(', ');
+                           return '';
+                        }
+                     }
+                  }
+               },
+               scales: {
+                  x: { ticks: { color: '#64748B', font: { family: 'Inter', size: 11 } }, grid: { color: '#1E293B' } },
+                  y: {
+                     ticks: { color: '#64748B', font: { family: 'Inter', size: 11 } },
+                     grid: { color: '#1E293B' },
+                     title: { display: true, text: 'Glucosa (mg/dL)', color: '#64748B', font: { size: 11 } }
+                  },
+                  y2: {
+                     position: 'right',
+                     ticks: { color: '#64748B', font: { family: 'Inter', size: 11 } },
+                     grid: { drawOnChartArea: false },
+                     title: { display: true, text: 'Insulina (U)', color: '#64748B', font: { size: 11 } }
+                  }
+               }
+            }
+         });
+      }
+
+      function getLabel(r) { return r.date.split('-').slice(1).join('/') + ' ' + r.time; }
+
+      function updateChartRange() {
+         if (!glucoseChart) return;
+         let filtered;
+         if (currentRange === 'custom') {
+            const from = new Date(document.getElementById('range-from').value).getTime();
+            const to = new Date(document.getElementById('range-to').value).getTime() + 864e5;
+            filtered = readings.filter(r => r.ts >= from && r.ts <= to);
+         } else {
+            const days = parseInt(currentRange);
+            const cutoff = Date.now() - days * 864e5;
+            filtered = readings.filter(r => r.ts >= cutoff);
+         }
+
+         const labels = filtered.map(r => getLabel(r));
+         glucoseChart.data.labels = labels;
+         glucoseChart.data.datasets[0].data = filtered.map(r => r.glucose);
+         glucoseChart.data.datasets[1].data = filtered.map(r => r.insulin || null);
+         glucoseChart.update();
+      }
+
+      function setRange(range, btn) {
+         currentRange = range;
+         document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+         btn.classList.add('active');
+         updateChartRange();
+      }
+
+      function setCustomRange() {
+         currentRange = 'custom';
+         document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+         updateChartRange();
+      }
+
+      // ── HISTORY ──
+      function glucoseBadge(g) {
+         if (g < 70) return `<span class="glucose-badge badge-low">⬇ ${g}</span>`;
+         if (g > 180) return `<span class="glucose-badge badge-high">⬆ ${g}</span>`;
+         return `<span class="glucose-badge badge-normal">✓ ${g}</span>`;
+      }
+
+      function renderHistory() {
+         const tbody = document.getElementById('history-body');
+         const empty = document.getElementById('history-empty');
+         tbody.innerHTML = '';
+         if (!readings.length) { empty.style.display = 'block'; return; }
+         empty.style.display = 'none';
+         const sorted = [...readings].reverse();
+         sorted.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+      <td>${r.date} ${r.time}</td>
+      <td>${glucoseBadge(r.glucose)}</td>
+      <td>${r.insulin ? r.insulin + ' U' : '—'}</td>
+      <td>${r.meals.length ? r.meals.join(', ') : '—'}</td>
+      <td>${r.post || '—'}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.notes || '—'}</td>
+      <td>
+        <button class="del-btn" onclick="deleteReading(${r.id})" title="Eliminar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </td>`;
+            tbody.appendChild(tr);
+         });
+      }
+
+      function deleteReading(id) {
+         readings = readings.filter(r => r.id !== id);
+         saveReadings();
+         renderHistory();
+         updateStats();
+         updateChartRange();
+         showToast('Medición eliminada');
+      }
+
+      // ── JSON IO ──
+      function exportJSON() {
+         const data = { user: currentUser.name, exported: new Date().toISOString(), readings };
+         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+         const a = document.createElement('a');
+         a.href = URL.createObjectURL(blob);
+         a.download = `glucosa_${currentUser.email}_${new Date().toISOString().split('T')[0]}.json`;
+         a.click();
+         showToast('Datos exportados correctamente ✓', 'success');
+      }
+
+      function importJSON(event) {
+         const file = event.target.files[0];
+         if (!file) return;
+         const reader = new FileReader();
+         reader.onload = e => {
+            try {
+               const data = JSON.parse(e.target.result);
+               const imported = data.readings || data;
+               if (!Array.isArray(imported)) throw new Error();
+               const before = readings.length;
+               const existingIds = new Set(readings.map(r => r.id));
+               imported.forEach(r => { if (!existingIds.has(r.id)) readings.push(r); });
+               readings.sort((a, b) => a.ts - b.ts);
+               saveReadings();
+               renderHistory();
+               updateStats();
+               updateChartRange();
+               showToast(`${readings.length - before} registros importados ✓`, 'success');
+            } catch {
+               showToast('Archivo JSON inválido', 'error');
+            }
+            event.target.value = '';
+         };
+         reader.readAsText(file);
+      }
+
+      // ── PDF ──
+      function updatePDFPreview() {
+         const from = document.getElementById('pdf-from').value;
+         const to = document.getElementById('pdf-to').value;
+         const tbody = document.getElementById('pdf-preview-body');
+         const empty = document.getElementById('pdf-empty');
+         tbody.innerHTML = '';
+
+         if (!from || !to) { empty.style.display = 'block'; return; }
+
+         const fromTs = new Date(from).getTime();
+         const toTs = new Date(to).getTime() + 864e5;
+         const filtered = readings.filter(r => r.ts >= fromTs && r.ts <= toTs);
+
+         if (!filtered.length) {
+            empty.style.display = 'block';
+            empty.querySelector('p').textContent = 'No hay registros en ese período.';
+            return;
+         }
+         empty.style.display = 'none';
+
+         filtered.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+      <td>${r.date}</td>
+      <td>${r.time}</td>
+      <td>${glucoseBadge(r.glucose)}</td>
+      <td>${r.insulin || '—'}</td>
+      <td>${r.meals.join(', ') || '—'}</td>
+      <td>${r.post || '—'}</td>`;
+            tbody.appendChild(tr);
+         });
+      }
+
+      document.getElementById('pdf-from').addEventListener('change', updatePDFPreview);
+      document.getElementById('pdf-to').addEventListener('change', updatePDFPreview);
+
+      function generatePDF() {
+         const from = document.getElementById('pdf-from').value;
+         const to = document.getElementById('pdf-to').value;
+         if (!from || !to) { showToast('Selecciona el rango de fechas', 'error'); return; }
+
+         const fromTs = new Date(from).getTime();
+         const toTs = new Date(to).getTime() + 864e5;
+         const filtered = readings.filter(r => r.ts >= fromTs && r.ts <= toTs);
+
+         if (!filtered.length) { showToast('No hay registros en ese período', 'error'); return; }
+
+         const { jsPDF } = window.jspdf;
+         const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+         // Header
+         doc.setFillColor(13, 148, 136);
+         doc.rect(0, 0, 210, 28, 'F');
+         doc.setTextColor(255, 255, 255);
+         doc.setFontSize(18); doc.setFont('helvetica', 'bold');
+         doc.text('GlucoControl', 14, 12);
+         doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+         doc.text('Informe de Control de Glucosa', 14, 20);
+
+         doc.setTextColor(80, 80, 80);
+         doc.setFontSize(9);
+         doc.text(`Paciente: ${currentUser.name}`, 14, 36);
+         doc.text(`Período: ${from} al ${to}`, 14, 42);
+         doc.text(`Generado: ${new Date().toLocaleString('es-ES')}`, 14, 48);
+         doc.text(`Total de registros: ${filtered.length}`, 14, 54);
+
+         // Stats block
+         const vals = filtered.map(r => r.glucose);
+         const minG = Math.min(...vals), maxG = Math.max(...vals);
+         const avgG = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+         doc.setFillColor(245, 250, 248);
+         doc.roundedRect(14, 58, 55, 24, 3, 3, 'F');
+         doc.roundedRect(74, 58, 55, 24, 3, 3, 'F');
+         doc.roundedRect(134, 58, 62, 24, 3, 3, 'F');
+         doc.setFontSize(8); doc.setTextColor(100, 116, 139);
+         doc.text('GLUCOSA MÍNIMA', 17, 64); doc.text('GLUCOSA MÁXIMA', 77, 64); doc.text('PROMEDIO', 137, 64);
+         doc.setFontSize(18); doc.setFont('helvetica', 'bold');
+         doc.setTextColor(34, 197, 94); doc.text(`${minG}`, 17, 76);
+         doc.setTextColor(239, 68, 68); doc.text(`${maxG}`, 77, 76);
+         doc.setTextColor(13, 148, 136); doc.text(`${avgG}`, 137, 76);
+         doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139);
+         doc.text('mg/dL', 17 + String(minG).length * 4 + 2, 76);
+         doc.text('mg/dL', 77 + String(maxG).length * 4 + 2, 76);
+         doc.text('mg/dL', 137 + String(avgG).length * 4 + 2, 76);
+
+         // Table
+         doc.autoTable({
+            startY: 88,
+            head: [['Fecha', 'Hora', 'Glucosa\n(mg/dL)', 'Insulina\n(U)', 'Comida', 'Control', 'Notas']],
+            body: filtered.map(r => [
+               r.date, r.time, r.glucose,
+               r.insulin || '—',
+               r.meals.join(', ') || '—',
+               r.post || '—',
+               r.notes || '—'
+            ]),
+            styles: { fontSize: 8.5, cellPadding: 3.5, textColor: [30, 41, 59], font: 'helvetica' },
+            headStyles: { fillColor: [13, 148, 136], textColor: 255, fontStyle: 'bold', fontSize: 8 },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+            columnStyles: {
+               2: { halign: 'center', fontStyle: 'bold' },
+               3: { halign: 'center' }
+            },
+            margin: { left: 14, right: 14 },
+            didDrawCell: (data) => {
+               if (data.section === 'body' && data.column.index === 2) {
+                  const g = parseFloat(data.cell.raw);
+                  if (g < 70) doc.setTextColor(245, 158, 11);
+                  else if (g > 180) doc.setTextColor(239, 68, 68);
+                  else doc.setTextColor(34, 197, 94);
+               }
+            }
+         });
+
+         // Footer
+         const pageCount = doc.internal.getNumberOfPages();
+         for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8); doc.setTextColor(150, 150, 150);
+            doc.text(`GlucoControl — Página ${i} de ${pageCount}`, 14, 290);
+            doc.text('Este informe es de uso médico informativo.', 105, 290, { align: 'center' });
+         }
+
+         doc.save(`informe_glucosa_${from}_${to}.pdf`);
+         showToast('PDF generado y descargado ✓', 'success');
+      }
+
+      // ── TOAST ──
+      let toastTimer;
+      function showToast(msg, type = '') {
+         const t = document.getElementById('toast');
+         t.textContent = msg;
+         t.className = 'show' + (type ? ' ' + type : '');
+         clearTimeout(toastTimer);
+         toastTimer = setTimeout(() => { t.className = ''; }, 3000);
+      }
+
+      // ── INIT ──
+      window.addEventListener('load', () => {
+         const session = localStorage.getItem('gc_session');
+         if (session) {
+            currentUser = JSON.parse(session);
+            // verify user still exists
+            const users = getUsers();
+            if (users[currentUser.email]) {
+               currentUser = users[currentUser.email];
+               enterApp();
+            }
+         }
+
+         // seed demo data if new user
+         setTimeout(() => {
+            if (currentUser && !readings.length) {
+               const now = Date.now();
+               const demo = [
+                  { glucose: 98, insulin: 0, meals: ['ayunas'], post: 'antes' },
+                  { glucose: 145, insulin: 4, meals: ['desayuno'], post: '2h después' },
+                  { glucose: 112, insulin: 0, meals: ['almuerzo'], post: 'antes' },
+                  { glucose: 178, insulin: 6, meals: ['almuerzo'], post: '2h después' },
+                  { glucose: 89, insulin: 0, meals: ['merienda'], post: 'antes' },
+                  { glucose: 201, insulin: 8, meals: ['cena'], post: '2h después' },
+                  { glucose: 95, insulin: 0, meals: ['ayunas'], post: 'antes' },
+                  { glucose: 134, insulin: 4, meals: ['desayuno'], post: '1h después' },
+                  { glucose: 67, insulin: 0, meals: ['merienda'], post: 'antes' },
+                  { glucose: 155, insulin: 5, meals: ['cena'], post: '2h después' },
+               ];
+               demo.forEach((d, i) => {
+                  const ts = now - (9 - i) * 10 * 3600000 - i * 43200000;
+                  const dt = new Date(ts);
+                  readings.push({
+                     id: ts,
+                     ...d,
+                     notes: '',
+                     date: dt.toISOString().split('T')[0],
+                     time: dt.toTimeString().slice(0, 5),
+                     ts
+                  });
+               });
+               readings.sort((a, b) => a.ts - b.ts);
+               saveReadings();
+               updateStats();
+               updateChartRange();
+            }
+         }, 300);
+      });
+   </script>
 </body>
 
 </html>
