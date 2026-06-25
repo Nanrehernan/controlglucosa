@@ -519,6 +519,18 @@
          flex-wrap: wrap;
       }
 
+      .range-row-btns {
+         display: flex;
+         gap: 8px;
+         align-items: center;
+      }
+
+      .range-dates {
+         display: flex;
+         gap: 8px;
+         align-items: center;
+      }
+
       .range-btn {
          padding: 6px 14px;
          border-radius: 8px;
@@ -703,6 +715,13 @@
       /* ── TABLE ── */
       .table-wrapper {
          overflow-x: auto;
+         -webkit-overflow-scrolling: touch;
+      }
+
+      .table-wrapper table {
+         width: 100%;
+         border-collapse: collapse;
+         min-width: 640px;
       }
 
       table {
@@ -893,32 +912,335 @@
             --sidebar-w: 0px;
          }
 
+         /* ── Sidebar ── */
          #sidebar {
             transform: translateX(-240px);
             width: 240px;
+            z-index: 300;
          }
 
          #sidebar.open {
             transform: translateX(0);
          }
 
-         #main {
-            margin-left: 0;
-            padding: 20px;
+         #sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .5);
+            z-index: 299;
          }
 
-         .form-grid,
-         .io-grid,
-         .pdf-form {
-            grid-template-columns: 1fr;
-         }
-
-         .stats-grid {
-            grid-template-columns: 1fr 1fr;
+         #sidebar-overlay.show {
+            display: block;
          }
 
          .menu-btn {
             display: flex !important;
+         }
+
+         /* ── Main layout ── */
+         #main {
+            margin-left: 0;
+            padding: 16px;
+            padding-top: 68px;
+         }
+
+         .page-header {
+            margin-bottom: 16px;
+         }
+
+         .page-header h1 {
+            font-size: 20px;
+         }
+
+         .page-header p {
+            font-size: 13px;
+         }
+
+         /* ── Cards ── */
+         .card {
+            padding: 14px;
+            border-radius: 12px;
+         }
+
+         /* ── Stats ── */
+         .stats-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+         }
+
+         .stat-card {
+            padding: 14px;
+            border-radius: 12px;
+         }
+
+         .stat-icon {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+         }
+
+         .stat-icon svg {
+            width: 16px;
+            height: 16px;
+         }
+
+         .stat-label {
+            font-size: 11px;
+         }
+
+         .stat-value {
+            font-size: 22px;
+         }
+
+         .stat-sub {
+            font-size: 11px;
+         }
+
+         /* ── Chart ── */
+         .chart-card {
+            padding: 14px;
+            border-radius: 12px;
+         }
+
+         .chart-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            margin-bottom: 14px;
+         }
+
+         .range-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: stretch;
+         }
+
+         .range-row-btns {
+            display: flex;
+            gap: 6px;
+         }
+
+         .range-btn {
+            flex: 1;
+            font-size: 12px;
+            padding: 7px 4px;
+            text-align: center;
+         }
+
+         .range-separator {
+            display: none;
+         }
+
+         .range-dates {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+         }
+
+         .range-date {
+            width: 100%;
+            font-size: 12px;
+            padding: 7px 8px;
+         }
+
+         canvas {
+            max-height: 200px;
+         }
+
+         /* ── Historial ── */
+         .history-toolbar {
+            margin-bottom: 12px;
+         }
+
+         .btn-danger {
+            font-size: 12px;
+            padding: 7px 12px;
+         }
+
+         /* Tabla con scroll horizontal — NO fijar min-width, dejar que el contenido decida */
+         .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0 -14px;
+            /* sangría negativa para usar todo el ancho */
+            padding: 0 14px;
+         }
+
+         table {
+            border-collapse: collapse;
+            width: max-content;
+            min-width: 100%;
+         }
+
+         th {
+            font-size: 10px;
+            padding: 8px 10px;
+            white-space: nowrap;
+         }
+
+         td {
+            font-size: 12px;
+            padding: 10px 10px;
+            white-space: nowrap;
+         }
+
+         .glucose-badge {
+            font-size: 11px;
+            padding: 3px 7px;
+         }
+
+         .action-cell {
+            gap: 2px;
+         }
+
+         .edit-btn,
+         .del-btn {
+            padding: 3px;
+         }
+
+         /* ── Formulario agregar ── */
+         .form-grid {
+            grid-template-columns: 1fr;
+            gap: 14px;
+         }
+
+         .form-group.full {
+            grid-column: 1;
+         }
+
+         .form-input {
+            font-size: 14px;
+            padding: 11px 14px;
+         }
+
+         .meal-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+         }
+
+         .meal-btn {
+            font-size: 12px;
+            padding: 10px 8px;
+            gap: 6px;
+         }
+
+         .meal-btn svg {
+            width: 14px;
+            height: 14px;
+         }
+
+         .post-options {
+            flex-direction: column;
+            gap: 8px;
+         }
+
+         .post-btn {
+            padding: 10px;
+            font-size: 13px;
+         }
+
+         .submit-btn {
+            width: 100%;
+            padding: 13px;
+         }
+
+         /* ── Import/Export ── */
+         .io-grid {
+            grid-template-columns: 1fr;
+            gap: 14px;
+         }
+
+         .io-card {
+            padding: 20px;
+         }
+
+         /* ── PDF ── */
+         .pdf-form {
+            grid-template-columns: 1fr;
+            gap: 12px;
+         }
+
+         #pdf-preview-table {
+            font-size: 12px;
+         }
+
+         /* ── Modal edición ── */
+         .modal-box {
+            padding: 18px;
+            width: 96vw;
+            max-height: 88vh;
+            border-radius: 14px;
+         }
+
+         .modal-header {
+            margin-bottom: 16px;
+         }
+
+         .modal-header h2 {
+            font-size: 16px;
+         }
+
+         .modal-meal-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+         }
+
+         .modal-post-options {
+            flex-direction: column;
+            gap: 6px;
+         }
+
+         .modal-post-btn {
+            text-align: center;
+         }
+
+         .modal-actions {
+            flex-direction: column-reverse;
+            gap: 8px;
+            margin-top: 16px;
+         }
+
+         .btn-cancel {
+            text-align: center;
+            padding: 11px;
+         }
+
+         /* ── Auth ── */
+         .auth-box {
+            padding: 24px 18px;
+         }
+
+         /* ── Toast ── */
+         #toast {
+            font-size: 13px;
+            padding: 10px 16px;
+            white-space: normal;
+            text-align: center;
+            max-width: 90vw;
+         }
+      }
+
+      @media (max-width: 390px) {
+         #main {
+            padding: 12px;
+            padding-top: 64px;
+         }
+
+         .stats-grid {
+            gap: 8px;
+         }
+
+         .stat-value {
+            font-size: 18px;
+         }
+
+         .meal-grid {
+            grid-template-columns: 1fr 1fr;
          }
       }
 
@@ -1182,6 +1504,9 @@
       </svg>
    </button>
 
+   <!-- SIDEBAR OVERLAY -->
+   <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
    <!-- SIDEBAR -->
    <nav id="sidebar">
       <div class="sidebar-logo">
@@ -1320,12 +1645,17 @@
                   <div class="card-title" style="margin-bottom:4px">Historial de glucosa</div>
                </div>
                <div class="range-controls">
-                  <button class="range-btn active" onclick="setRange('7d',this)">7 días</button>
-                  <button class="range-btn" onclick="setRange('14d',this)">14 días</button>
-                  <button class="range-btn" onclick="setRange('30d',this)">30 días</button>
-                  <span style="color:var(--text-muted);font-size:12px">o:</span>
-                  <input type="date" class="range-date" id="range-from" onchange="setCustomRange()">
-                  <input type="date" class="range-date" id="range-to" onchange="setCustomRange()">
+                  <div class="range-row-btns">
+                     <button class="range-btn active" onclick="setRange('7d',this)">7 días</button>
+                     <button class="range-btn" onclick="setRange('14d',this)">14 días</button>
+                     <button class="range-btn" onclick="setRange('30d',this)">30 días</button>
+                  </div>
+                  <div class="range-dates">
+                     <input type="date" class="range-date" id="range-from" onchange="setCustomRange()"
+                        placeholder="Desde">
+                     <input type="date" class="range-date" id="range-to" onchange="setCustomRange()"
+                        placeholder="Hasta">
+                  </div>
                </div>
             </div>
             <canvas id="glucose-chart"></canvas>
@@ -1435,8 +1765,8 @@
             <h1>Historial</h1>
             <p>Todas tus mediciones registradas</p>
          </div>
-         <div class="card">
-            <div class="history-toolbar">
+         <div class="card" style="padding-left:0;padding-right:0;padding-bottom:0;">
+            <div class="history-toolbar" style="padding: 0 20px 0 20px;">
                <div class="card-title">Registros</div>
                <button class="btn-danger" onclick="deleteAllReadings()">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -1466,7 +1796,7 @@
                   </thead>
                   <tbody id="history-body"></tbody>
                </table>
-               <div class="empty" id="history-empty">
+               <div class="empty" id="history-empty" style="padding: 48px 20px;">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                      <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
                      <rect x="9" y="3" width="6" height="4" rx="1" />
@@ -1727,11 +2057,15 @@
          if (page === 'dashboard') { updateStats(); updateChartRange(); }
          if (page === 'history') renderHistory();
          if (page === 'pdf') updatePDFPreview();
-         if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+         if (window.innerWidth <= 768) {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebar-overlay').classList.remove('show');
+         }
       }
 
       function toggleSidebar() {
          document.getElementById('sidebar').classList.toggle('open');
+         document.getElementById('sidebar-overlay').classList.toggle('show');
       }
 
       // ── DEFAULTS ──
