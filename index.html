@@ -935,6 +935,206 @@
          cursor: pointer;
          color: var(--text);
       }
+
+      /* ── EDIT MODAL ── */
+      #edit-modal {
+         position: fixed;
+         inset: 0;
+         z-index: 500;
+         display: none;
+         align-items: center;
+         justify-content: center;
+         background: rgba(0, 0, 0, .6);
+         backdrop-filter: blur(4px);
+      }
+
+      #edit-modal.open {
+         display: flex;
+      }
+
+      .modal-box {
+         background: var(--card);
+         border: 1px solid var(--border);
+         border-radius: 20px;
+         padding: 32px;
+         width: 560px;
+         max-width: 95vw;
+         max-height: 90vh;
+         overflow-y: auto;
+      }
+
+      .modal-header {
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
+         margin-bottom: 24px;
+      }
+
+      .modal-header h2 {
+         font-size: 18px;
+         font-weight: 700;
+         color: var(--white);
+      }
+
+      .modal-close {
+         background: none;
+         border: none;
+         cursor: pointer;
+         color: var(--text-muted);
+         padding: 4px;
+         border-radius: 6px;
+         transition: color .2s;
+      }
+
+      .modal-close:hover {
+         color: var(--red);
+      }
+
+      .modal-actions {
+         display: flex;
+         gap: 12px;
+         margin-top: 24px;
+      }
+
+      .btn-save {
+         flex: 1;
+         padding: 12px;
+         background: var(--teal);
+         border: none;
+         border-radius: 10px;
+         color: white;
+         font-family: inherit;
+         font-size: 14px;
+         font-weight: 600;
+         cursor: pointer;
+         transition: background .2s;
+      }
+
+      .btn-save:hover {
+         background: var(--teal-light);
+      }
+
+      .btn-cancel {
+         padding: 12px 20px;
+         background: transparent;
+         border: 1px solid var(--border);
+         border-radius: 10px;
+         color: var(--slate);
+         font-family: inherit;
+         font-size: 14px;
+         cursor: pointer;
+         transition: all .2s;
+      }
+
+      .btn-cancel:hover {
+         border-color: var(--slate);
+         color: var(--text);
+      }
+
+      .history-toolbar {
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
+         margin-bottom: 16px;
+         flex-wrap: wrap;
+         gap: 10px;
+      }
+
+      .history-toolbar .card-title {
+         margin-bottom: 0;
+      }
+
+      .btn-danger {
+         padding: 8px 16px;
+         background: transparent;
+         border: 1.5px solid var(--red);
+         border-radius: 9px;
+         color: var(--red);
+         font-family: inherit;
+         font-size: 13px;
+         font-weight: 600;
+         cursor: pointer;
+         transition: all .2s;
+         display: flex;
+         align-items: center;
+         gap: 6px;
+      }
+
+      .btn-danger:hover {
+         background: var(--red);
+         color: white;
+      }
+
+      .edit-btn {
+         background: none;
+         border: none;
+         cursor: pointer;
+         color: var(--text-muted);
+         padding: 4px;
+         border-radius: 6px;
+         transition: color .2s;
+      }
+
+      .edit-btn:hover {
+         color: var(--teal);
+      }
+
+      .action-cell {
+         display: flex;
+         gap: 4px;
+         align-items: center;
+      }
+
+      /* ── MODAL MEAL GRID ── */
+      .modal-meal-grid {
+         display: grid;
+         grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+         gap: 8px;
+      }
+
+      .modal-meal-btn {
+         padding: 9px 12px;
+         border-radius: 9px;
+         border: 1.5px solid var(--border);
+         background: transparent;
+         color: var(--slate);
+         font-family: inherit;
+         font-size: 12px;
+         cursor: pointer;
+         transition: all .15s;
+         font-weight: 500;
+      }
+
+      .modal-meal-btn.selected {
+         border-color: var(--teal);
+         background: var(--teal-dim);
+         color: var(--teal-light);
+      }
+
+      .modal-post-options {
+         display: flex;
+         gap: 8px;
+         flex-wrap: wrap;
+      }
+
+      .modal-post-btn {
+         padding: 9px 14px;
+         border-radius: 9px;
+         border: 1.5px solid var(--border);
+         background: transparent;
+         color: var(--slate);
+         font-family: inherit;
+         font-size: 12px;
+         cursor: pointer;
+         transition: all .15s;
+         font-weight: 500;
+      }
+
+      .modal-post-btn.selected {
+         border-color: var(--teal);
+         background: var(--teal-dim);
+         color: var(--teal-light);
+      }
    </style>
 </head>
 
@@ -1236,11 +1436,26 @@
             <p>Todas tus mediciones registradas</p>
          </div>
          <div class="card">
+            <div class="history-toolbar">
+               <div class="card-title">Registros</div>
+               <button class="btn-danger" onclick="deleteAllReadings()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round">
+                     <polyline points="3 6 5 6 21 6" />
+                     <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                     <path d="M10 11v6" />
+                     <path d="M14 11v6" />
+                     <path d="M9 6V4h6v2" />
+                  </svg>
+                  Eliminar todos
+               </button>
+            </div>
             <div class="table-wrapper">
                <table>
                   <thead>
                      <tr>
-                        <th>Fecha y hora</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
                         <th>Glucosa</th>
                         <th>Insulina</th>
                         <th>Comida</th>
@@ -1354,6 +1569,66 @@
 
    </main>
 
+   <!-- EDIT MODAL -->
+   <div id="edit-modal">
+      <div class="modal-box">
+         <div class="modal-header">
+            <h2>Editar medición</h2>
+            <button class="modal-close" onclick="closeEditModal()">
+               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+               </svg>
+            </button>
+         </div>
+         <div class="form-grid">
+            <div class="form-group">
+               <label>Glucosa (mg/dL) *</label>
+               <input type="number" class="form-input" id="edit-glucose" min="20" max="600">
+            </div>
+            <div class="form-group">
+               <label>Insulina (U)</label>
+               <input type="number" class="form-input" id="edit-insulin" min="0" max="100" step="0.5">
+            </div>
+            <div class="form-group">
+               <label>Fecha</label>
+               <input type="date" class="form-input" id="edit-date">
+            </div>
+            <div class="form-group">
+               <label>Hora (24hs)</label>
+               <input type="time" class="form-input" id="edit-time">
+            </div>
+            <div class="form-group full">
+               <label>Comida</label>
+               <div class="modal-meal-grid" id="edit-meal-grid">
+                  <button class="modal-meal-btn" onclick="toggleEditMeal(this,'ayunas')">En ayunas</button>
+                  <button class="modal-meal-btn" onclick="toggleEditMeal(this,'desayuno')">Desayuno</button>
+                  <button class="modal-meal-btn" onclick="toggleEditMeal(this,'almuerzo')">Almuerzo</button>
+                  <button class="modal-meal-btn" onclick="toggleEditMeal(this,'merienda')">Merienda</button>
+                  <button class="modal-meal-btn" onclick="toggleEditMeal(this,'cena')">Cena</button>
+               </div>
+            </div>
+            <div class="form-group full">
+               <label>Control post comida</label>
+               <div class="modal-post-options">
+                  <button class="modal-post-btn" onclick="toggleEditPost(this,'antes')">Antes de comer</button>
+                  <button class="modal-post-btn" onclick="toggleEditPost(this,'2h')">2h después</button>
+                  <button class="modal-post-btn" onclick="toggleEditPost(this,'1h')">1h después</button>
+               </div>
+            </div>
+            <div class="form-group full">
+               <label>Notas</label>
+               <input type="text" class="form-input" id="edit-notes" placeholder="Observaciones…">
+            </div>
+         </div>
+         <div class="modal-actions">
+            <button class="btn-save" onclick="saveEdit()">Guardar cambios</button>
+            <button class="btn-cancel" onclick="closeEditModal()">Cancelar</button>
+         </div>
+      </div>
+   </div>
+
    <div id="toast"></div>
 
    <script>
@@ -1460,17 +1735,25 @@
       }
 
       // ── DEFAULTS ──
+      function localDateStr(d) {
+         // Returns YYYY-MM-DD in LOCAL timezone (avoids UTC offset shifting the day)
+         const y = d.getFullYear();
+         const m = String(d.getMonth() + 1).padStart(2, '0');
+         const day = String(d.getDate()).padStart(2, '0');
+         return `${y}-${m}-${day}`;
+      }
+
       function setDefaultDates() {
          const now = new Date();
-         const dateStr = now.toISOString().split('T')[0];
+         const dateStr = localDateStr(now);
          const timeStr = now.toTimeString().slice(0, 5);
          document.getElementById('add-date').value = dateStr;
          document.getElementById('add-time').value = timeStr;
-         const weekAgo = new Date(now - 7 * 864e5).toISOString().split('T')[0];
-         document.getElementById('range-from').value = weekAgo;
+         const weekAgo = new Date(now.getTime() - 7 * 864e5);
+         document.getElementById('range-from').value = localDateStr(weekAgo);
          document.getElementById('range-to').value = dateStr;
-         const monthAgo = new Date(now - 30 * 864e5).toISOString().split('T')[0];
-         document.getElementById('pdf-from').value = monthAgo;
+         const monthAgo = new Date(now.getTime() - 30 * 864e5);
+         document.getElementById('pdf-from').value = localDateStr(monthAgo);
          document.getElementById('pdf-to').value = dateStr;
       }
 
@@ -1509,7 +1792,7 @@
             meals: [...selectedMeals],
             post: selectedPost,
             notes,
-            ts: new Date(date + 'T' + time).getTime()
+            ts: (() => { const [y, mo, d] = date.split('-').map(Number); const [h, mi] = time.split(':').map(Number); return new Date(y, mo - 1, d, h, mi).getTime(); })()
          };
 
          readings.push(reading);
@@ -1666,23 +1949,32 @@
          const sorted = [...readings].reverse();
          sorted.forEach(r => {
             const tr = document.createElement('tr');
+            // Format time always as HH:MM 24h (it's stored as HH:MM already)
+            const timeDisplay = r.time || '—';
             tr.innerHTML = `
-      <td>${r.date} ${r.time}</td>
+      <td style="white-space:nowrap">${r.date}</td>
+      <td style="white-space:nowrap;font-variant-numeric:tabular-nums">${timeDisplay}</td>
       <td>${glucoseBadge(r.glucose)}</td>
       <td>${r.insulin ? r.insulin + ' U' : '—'}</td>
-      <td>${r.meals.length ? r.meals.join(', ') : '—'}</td>
+      <td>${r.meals && r.meals.length ? r.meals.join(', ') : '—'}</td>
       <td>${r.post || '—'}</td>
-      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.notes || '—'}</td>
+      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.notes || ''}">${r.notes || '—'}</td>
       <td>
-        <button class="del-btn" onclick="deleteReading(${r.id})" title="Eliminar">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-        </button>
+        <div class="action-cell">
+          <button class="edit-btn" onclick="openEditModal(${r.id})" title="Editar">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="del-btn" onclick="deleteReading(${r.id})" title="Eliminar">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
       </td>`;
             tbody.appendChild(tr);
          });
       }
 
       function deleteReading(id) {
+         if (!confirm('¿Eliminar esta medición?')) return;
          readings = readings.filter(r => r.id !== id);
          saveReadings();
          renderHistory();
@@ -1690,6 +1982,98 @@
          updateChartRange();
          showToast('Medición eliminada');
       }
+
+      function deleteAllReadings() {
+         if (!readings.length) { showToast('No hay registros para eliminar', 'error'); return; }
+         if (!confirm(`¿Eliminar TODOS los ${readings.length} registros?\n\nEsta acción no se puede deshacer.`)) return;
+         readings = [];
+         saveReadings();
+         renderHistory();
+         updateStats();
+         updateChartRange();
+         showToast('Todos los registros eliminados', 'error');
+      }
+
+      // ── EDIT MODAL ──
+      let editId = null;
+      let editMeals = [];
+      let editPost = null;
+
+      function openEditModal(id) {
+         const r = readings.find(x => x.id === id);
+         if (!r) return;
+         editId = id;
+         editMeals = [...(r.meals || [])];
+         editPost = r.post || null;
+
+         document.getElementById('edit-glucose').value = r.glucose;
+         document.getElementById('edit-insulin').value = r.insulin || '';
+         document.getElementById('edit-date').value = r.date;
+         document.getElementById('edit-time').value = r.time;
+         document.getElementById('edit-notes').value = r.notes || '';
+
+         // Reset & set meal buttons
+         document.querySelectorAll('.modal-meal-btn').forEach(b => {
+            const meal = b.getAttribute('onclick').match(/'([^']+)'\)/)[1];
+            b.classList.toggle('selected', editMeals.includes(meal));
+         });
+
+         // Reset & set post buttons
+         document.querySelectorAll('.modal-post-btn').forEach(b => {
+            const val = b.getAttribute('onclick').match(/'([^']+)'\)/)[1];
+            b.classList.toggle('selected', val === editPost);
+         });
+
+         document.getElementById('edit-modal').classList.add('open');
+      }
+
+      function closeEditModal() {
+         document.getElementById('edit-modal').classList.remove('open');
+         editId = null; editMeals = []; editPost = null;
+      }
+
+      function toggleEditMeal(btn, meal) {
+         const idx = editMeals.indexOf(meal);
+         if (idx > -1) { editMeals.splice(idx, 1); btn.classList.remove('selected'); }
+         else { editMeals.push(meal); btn.classList.add('selected'); }
+      }
+
+      function toggleEditPost(btn, val) {
+         document.querySelectorAll('.modal-post-btn').forEach(b => b.classList.remove('selected'));
+         editPost = (editPost === val) ? null : val;
+         if (editPost) btn.classList.add('selected');
+      }
+
+      function saveEdit() {
+         const glucose = parseFloat(document.getElementById('edit-glucose').value);
+         const insulin = parseFloat(document.getElementById('edit-insulin').value) || 0;
+         const date = document.getElementById('edit-date').value;
+         const time = document.getElementById('edit-time').value;
+         const notes = document.getElementById('edit-notes').value.trim();
+
+         if (!glucose || glucose < 20 || glucose > 600) { showToast('Glucosa inválida (20–600 mg/dL)', 'error'); return; }
+         if (!date || !time) { showToast('Selecciona fecha y hora', 'error'); return; }
+
+         const [y, mo, d] = date.split('-').map(Number);
+         const [h, mi] = time.split(':').map(Number);
+         const ts = new Date(y, mo - 1, d, h, mi).getTime();
+
+         const idx = readings.findIndex(r => r.id === editId);
+         if (idx === -1) return;
+         readings[idx] = { ...readings[idx], glucose, insulin, date, time, meals: [...editMeals], post: editPost, notes, ts };
+         readings.sort((a, b) => a.ts - b.ts);
+         saveReadings();
+         renderHistory();
+         updateStats();
+         updateChartRange();
+         closeEditModal();
+         showToast('Medición actualizada ✓', 'success');
+      }
+
+      // Close modal clicking outside
+      document.getElementById('edit-modal').addEventListener('click', function (e) {
+         if (e.target === this) closeEditModal();
+      });
 
       // ── JSON IO ──
       function exportJSON() {
@@ -1711,15 +2095,25 @@
                const data = JSON.parse(e.target.result);
                const imported = data.readings || data;
                if (!Array.isArray(imported)) throw new Error();
-               const before = readings.length;
-               const existingIds = new Set(readings.map(r => r.id));
-               imported.forEach(r => { if (!existingIds.has(r.id)) readings.push(r); });
+               if (!confirm(`Se importarán ${imported.length} registros.\n¡Esto REEMPLAZARÁ todos los datos actuales!\n\n¿Continuar?`)) {
+                  event.target.value = ''; return;
+               }
+               // Replace all — don't merge
+               readings = imported.map(r => {
+                  // Recalculate ts as local if missing or potentially UTC-shifted
+                  if (r.date && r.time) {
+                     const [y, mo, d] = r.date.split('-').map(Number);
+                     const [h, mi] = r.time.split(':').map(Number);
+                     r.ts = new Date(y, mo - 1, d, h, mi).getTime();
+                  }
+                  return r;
+               });
                readings.sort((a, b) => a.ts - b.ts);
                saveReadings();
                renderHistory();
                updateStats();
                updateChartRange();
-               showToast(`${readings.length - before} registros importados ✓`, 'success');
+               showToast(`${readings.length} registros importados correctamente ✓`, 'success');
             } catch {
                showToast('Archivo JSON inválido', 'error');
             }
@@ -1879,40 +2273,7 @@
             }
          }
 
-         // seed demo data if new user
-         setTimeout(() => {
-            if (currentUser && !readings.length) {
-               const now = Date.now();
-               const demo = [
-                  { glucose: 98, insulin: 0, meals: ['ayunas'], post: 'antes' },
-                  { glucose: 145, insulin: 4, meals: ['desayuno'], post: '2h después' },
-                  { glucose: 112, insulin: 0, meals: ['almuerzo'], post: 'antes' },
-                  { glucose: 178, insulin: 6, meals: ['almuerzo'], post: '2h después' },
-                  { glucose: 89, insulin: 0, meals: ['merienda'], post: 'antes' },
-                  { glucose: 201, insulin: 8, meals: ['cena'], post: '2h después' },
-                  { glucose: 95, insulin: 0, meals: ['ayunas'], post: 'antes' },
-                  { glucose: 134, insulin: 4, meals: ['desayuno'], post: '1h después' },
-                  { glucose: 67, insulin: 0, meals: ['merienda'], post: 'antes' },
-                  { glucose: 155, insulin: 5, meals: ['cena'], post: '2h después' },
-               ];
-               demo.forEach((d, i) => {
-                  const ts = now - (9 - i) * 10 * 3600000 - i * 43200000;
-                  const dt = new Date(ts);
-                  readings.push({
-                     id: ts,
-                     ...d,
-                     notes: '',
-                     date: dt.toISOString().split('T')[0],
-                     time: dt.toTimeString().slice(0, 5),
-                     ts
-                  });
-               });
-               readings.sort((a, b) => a.ts - b.ts);
-               saveReadings();
-               updateStats();
-               updateChartRange();
-            }
-         }, 300);
+
       });
    </script>
 </body>
